@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecast - Cash Flow Web App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Cash Flow App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="bi bi-house-door"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/expenses"><i class="bi bi-cash-coin"></i> Expenses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/revenue"><i class="bi bi-graph-up-arrow"></i> Revenue</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/forecast"><i class="bi bi-calendar-week"></i> Forecast</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/settings"><i class="bi bi-gear"></i> Settings</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Cash Flow Forecast</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <label for="forecastPeriod" class="form-label">Forecast Period</label>
+                                <select class="form-select" id="forecastPeriod">
+                                    <option value="4">4 Weeks</option>
+                                    <option value="8" selected>8 Weeks</option>
+                                    <option value="12">12 Weeks</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="startDate" class="form-label">Starting Date</label>
+                                <input type="date" class="form-control" id="startDate">
+                            </div>
+                            <div class="col-md-4">
+                                <label for="initialBalance" class="form-label">Initial Balance</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="currencySymbol">$</span>
+                                    <input type="number" class="form-control" id="initialBalance" step="0.01" value="0">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <button class="btn btn-primary w-100" id="calculateForecast">
+                                    <i class="bi bi-calculator"></i> Calculate Forecast
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="forecastResults" style="display: none;">
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Starting Balance</h5>
+                                            <h3 id="startingBalanceDisplay" class="text-primary">$0.00</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Lowest Balance</h5>
+                                            <h3 id="lowestBalanceDisplay" class="text-danger">$0.00</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Ending Balance</h5>
+                                            <h3 id="endingBalanceDisplay" class="text-success">$0.00</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h5>Cash Flow Chart</h5>
+                                    <canvas id="forecastChart" height="300"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-12">
+                                    <h5>Weekly Breakdown</h5>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped" id="forecastTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Week</th>
+                                                    <th>Starting Balance</th>
+                                                    <th>Inflows</th>
+                                                    <th>Outflows</th>
+                                                    <th>Ending Balance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Forecast data will be loaded here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="d-flex justify-content-end">
+                                        <button class="btn btn-outline-primary me-2" id="exportCSV">
+                                            <i class="bi bi-file-earmark-spreadsheet"></i> Export to CSV
+                                        </button>
+                                        <button class="btn btn-outline-primary" id="printForecast">
+                                            <i class="bi bi-printer"></i> Print Report
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="lowBalanceAlert" class="alert alert-warning mt-4" style="display: none;">
+                            <h5><i class="bi bi-exclamation-triangle"></i> Low Balance Warning</h5>
+                            <p>Your projected cash balance will drop below the threshold set in your settings.</p>
+                            <p>Lowest projected balance: <span id="lowBalanceValue">$0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/forecast.js') }}"></script>
+</body>
+</html>
